@@ -4,8 +4,9 @@ import LiveViewer from './LiveViewer';
 import StartLiveSession from './StartLiveSession';
 import './App.css';  // Importing the updated CSS for responsiveness
 
-const App = () => {
+function App() {
   return (
+    <>
     <Router>
       <div className="App">
         <nav>
@@ -28,6 +29,8 @@ const App = () => {
         </Routes>
       </div>
     </Router>
+    </>
+    
   );
 };
 

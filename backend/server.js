@@ -13,11 +13,11 @@ app.use(bodyParser.json());
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || 'us-east-1'  // Replace with your desired AWS region
+  region: process.env.AWS_REGION // Replace with your desired AWS region
 });
 
 // Initialize Chime SDK
-const chime = new AWS.ChimeSDKMeetings({ region: 'us-east-1' });
+const chime = new AWS.ChimeSDKMeetings({ region: process.env.AWS_REGION });
 
 // Endpoint to create a new Chime meeting
 app.post('/create-meeting', async (req, res) => {
@@ -27,7 +27,7 @@ app.post('/create-meeting', async (req, res) => {
     const meetingResponse = await chime.createMeeting({
       ClientRequestToken: clientRequestToken,  // Unique meeting identifier
       ExternalMeetingId: externalMeetingId,  // Must be a unique meeting identifier
-      MediaRegion: 'us-east-1'  // Choose AWS region
+      MediaRegion: process.env.AWS_REGION  // Choose AWS region
     }).promise();
     res.json({ meeting: meetingResponse.Meeting });
   } catch (error) {
@@ -68,10 +68,10 @@ app.post('/create-attendee', async (req, res) => {
 // Capture audio CreateMediaCapturePipeline
 app.post('/start-recording', async (req, res) => {
   const { meetingId } = req.body;
-  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: 'us-east-1' });
+  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: process.env.AWS_REGION });
   const params = {
     SourceType: 'ChimeSdkMeeting',
-    SourceArn: `arn:aws:chime:us-east-1:${process.env.AWS_ACCOUNT_ID}:meeting/${meetingId}`,
+    SourceArn: `arn:aws:chime:${process.env.AWS_REGION}:${process.env.AWS_ACCOUNT_ID}:meeting/${meetingId}`,
     SinkType: 'S3Bucket',
     SinkArn: `arn:aws:s3:::${process.env.S3_BUCKET_NAME}`
   }
@@ -87,7 +87,7 @@ app.post('/start-recording', async (req, res) => {
 // Stop recording endpoint
 app.post('/stop-recording', async (req, res) => {
   const { mediaPipelineId } = req.body;
-  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: 'us-east-1' });
+  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: process.env.AWS_REGION });
   try {
     const pipelineResponse = await chimeMediaPipeline.deleteMediaCapturePipeline({
       MediaPipelineId: mediaPipelineId
@@ -103,45 +103,45 @@ app.post('/stop-recording', async (req, res) => {
     "Sources": [
       {
         "Type": "MediaCapturePipeline",  // Specify the source type
-        "MediaCapturePipelineSourceConfiguration": { 
-          "ChimeSdkMeetingConfiguration": { 
-             "ArtifactsConfiguration": { 
-                "Audio": { 
-                   "State": "Enabled"
-                },
-                "CompositedVideo": { 
-                   "State": "Enabled"
-                },
-                "Content": { 
-                   "State": "Enabled"
-                },
-                "DataChannel": { 
-                   "State": "Enabled"
-                },
-                "MeetingEvents": { 
-                   "State": "Enabled"
-                },
-                "TranscriptionMessages": { 
-                   "State": "Enabled"
-                },
-                "Video": { 
-                   "State": "Enabled"
-                }
-             }
+        "MediaCapturePipelineSourceConfiguration": {
+          "ChimeSdkMeetingConfiguration": {
+            "ArtifactsConfiguration": {
+              "Audio": {
+                "State": "Enabled"
+              },
+              "CompositedVideo": {
+                "State": "Enabled"
+              },
+              "Content": {
+                "State": "Enabled"
+              },
+              "DataChannel": {
+                "State": "Enabled"
+              },
+              "MeetingEvents": {
+                "State": "Enabled"
+              },
+              "TranscriptionMessages": {
+                "State": "Enabled"
+              },
+              "Video": {
+                "State": "Enabled"
+              }
+            }
           },
-          "MediaPipelineArn": `arn:aws:chime:us-east-1:${process.env.AWS_ACCOUNT_ID}:media-pipeline/${mediaPipelineId}`  // Specify the media pipeline ARN
-       },
+          "MediaPipelineArn": `arn:aws:chime:${process.env.AWS_REGION}:${process.env.AWS_ACCOUNT_ID}:media-pipeline/${mediaPipelineId}`  // Specify the media pipeline ARN
+        },
       }
     ],
     "Sinks": [
       {
         "Type": "S3Bucket",   // Destination type
         "S3BucketSinkConfiguration": {
-          "Destination": "arn:aws:s3:::i-stech-earphoneprj-outputs-s3"
+          "Destination": `arn:aws:s3:::${process.env.S3_BUCKET_NAME_CONCAT}`
         }
       }
     ],
-   // "ClientRequestToken": "unique-request-token"
+    // "ClientRequestToken": "unique-request-token"
   }
 
   console.log("concat-recording", params);
@@ -155,39 +155,39 @@ app.post('/stop-recording', async (req, res) => {
 
 app.post('/concat-recording', async (req, res) => {
   const { mediaPipelineId } = req.body;
-  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: 'us-east-1' });
+  const chimeMediaPipeline = new AWS.ChimeSDKMediaPipelines({ region: process.env.AWS_REGION });
   const params = {
     "Sources": [
       {
         "Type": "MediaCapturePipeline",  // Specify the source type
-        "MediaCapturePipelineSourceConfiguration": { 
-          "ChimeSdkMeetingConfiguration": { 
-             "ArtifactsConfiguration": { 
-                "Audio": { 
-                   "State": "Enabled"
-                },
-                "CompositedVideo": { 
-                   "State": "Enabled"
-                },
-                "Content": { 
-                   "State": "Enabled"
-                },
-                "DataChannel": { 
-                   "State": "Enabled"
-                },
-                "MeetingEvents": { 
-                   "State": "Enabled"
-                },
-                "TranscriptionMessages": { 
-                   "State": "Enabled"
-                },
-                "Video": { 
-                   "State": "Enabled"
-                }
-             }
+        "MediaCapturePipelineSourceConfiguration": {
+          "ChimeSdkMeetingConfiguration": {
+            "ArtifactsConfiguration": {
+              "Audio": {
+                "State": "Enabled"
+              },
+              "CompositedVideo": {
+                "State": "Enabled"
+              },
+              "Content": {
+                "State": "Enabled"
+              },
+              "DataChannel": {
+                "State": "Enabled"
+              },
+              "MeetingEvents": {
+                "State": "Enabled"
+              },
+              "TranscriptionMessages": {
+                "State": "Enabled"
+              },
+              "Video": {
+                "State": "Enabled"
+              }
+            }
           },
-          "MediaPipelineArn": `arn:aws:chime:us-east-1:${process.env.AWS_ACCOUNT_ID}:media-pipeline/${mediaPipelineId}`  // Specify the media pipeline ARN
-       },
+          "MediaPipelineArn": `arn:aws:chime:${process.env.AWS_REGION}:${process.env.AWS_ACCOUNT_ID}:media-pipeline/${mediaPipelineId}`  // Specify the media pipeline ARN
+        },
       }
     ],
     "Sinks": [
@@ -198,7 +198,7 @@ app.post('/concat-recording', async (req, res) => {
         }
       }
     ],
-   // "ClientRequestToken": "unique-request-token"
+    // "ClientRequestToken": "unique-request-token"
   }
 
   console.log("concat-recording", params);
