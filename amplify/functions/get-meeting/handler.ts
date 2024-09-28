@@ -2,7 +2,7 @@ import type { APIGatewayProxyHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  const region = process.env.AWS_REGION || 'ap-northeast-1';
+  const region = process.env.AWS_REGION || 'us-east-1';
   const chime = new AWS.ChimeSDKMeetings({ region });
 
   try {
