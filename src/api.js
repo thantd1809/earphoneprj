@@ -1,6 +1,8 @@
 // src/api.js
 const { v4: uuid } = require('uuid');
 const API_URL = 'http://localhost:4000';
+const API_URL_MEETING = 'https://xqx8kj49rf.execute-api.us-east-1.amazonaws.com/dev';
+const API_URL_ATTENDE = 'https://yzkn143ac0.execute-api.us-east-1.amazonaws.com/dev';
 
 // https://r2oj3b8302.execute-api.ap-northeast-1.amazonaws.com/dev
 // export async function testMeeting() {
@@ -21,7 +23,7 @@ const API_URL = 'http://localhost:4000';
 // Function to create a new Chime meeting (used by the host)
 export async function createMeeting() {
 
-  const response = await fetch(`https://gqr4dc3syf.execute-api.ap-northeast-1.amazonaws.com/dev/meeting`, {
+  const response = await fetch(`${API_URL_MEETING}/meeting`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -47,7 +49,7 @@ export async function createMeeting() {
 // }
 
 export async function getMeeting(meetingId) {
-  const response = await fetch(`https://gqr4dc3syf.execute-api.ap-northeast-1.amazonaws.com/dev/meeting/?meetingId=${meetingId}`, {
+  const response = await fetch(`${API_URL_MEETING}/meeting/?meetingId=${meetingId}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -58,7 +60,7 @@ export async function getMeeting(meetingId) {
 
 // Function to create an attendee (used by both host and listeners)
 export async function createAttendee(meetingId, externalUserId) {
-  const response = await fetch(`https://rtp02fdc7i.execute-api.ap-northeast-1.amazonaws.com/dev/attendee`, {
+  const response = await fetch(`${API_URL_ATTENDE}/attendee`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
